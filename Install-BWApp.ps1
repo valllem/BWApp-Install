@@ -65,250 +65,93 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
  }
 }
 
-## HIDE THE CONSOLE WINDOW BEFORE GUI LAUNCHES ##
-Add-Type -Name Window -Namespace Console -MemberDefinition '
-[DllImport("Kernel32.dll")]
-public static extern IntPtr GetConsoleWindow();
-[DllImport("user32.dll")]
-public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
-'
-$consolePtr = [Console.Window]::GetConsoleWindow()
-[Console.Window]::ShowWindow($consolePtr, 0)
-##################
 
-## ENABLE THE GUI ##
-Add-Type -AssemblyName System.Windows.Forms
-[System.Windows.Forms.Application]::EnableVisualStyles()
 
-## PROGRESS BAR INSTALLING APP ##
-    $ObjForm = New-Object System.Windows.Forms.Form
-	$ObjForm.Text = "Installing"
-	$ObjForm.Height = 100
-	$ObjForm.Width = 500
-	$ObjForm.BackColor = "White"
 
-	$ObjForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
-	$ObjForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-	## -- Create The Label
-	$ObjLabel = New-Object System.Windows.Forms.Label
-	$ObjLabel.Text = "Installing App. Please wait ... "
-	$ObjLabel.Left = 5
-	$ObjLabel.Top = 10
-	$ObjLabel.Width = 500 - 20
-	$ObjLabel.Height = 15
-	$ObjLabel.Font = "Tahoma"
-	## -- Add the label to the Form
-	$ObjForm.Controls.Add($ObjLabel)
 
-	$PB = New-Object System.Windows.Forms.ProgressBar
-	$PB.Name = "PowerShellProgressBar"
-	$PB.Value = 10
-	$PB.Style="Continuous"
-
-	$System_Drawing_Size = New-Object System.Drawing.Size
-	$System_Drawing_Size.Width = 500 - 40
-	$System_Drawing_Size.Height = 20
-	$PB.Size = $System_Drawing_Size
-	$PB.Left = 5
-	$PB.Top = 40
-	$ObjForm.Controls.Add($PB)
-
-	## -- Show the Progress-Bar and Start The PowerShell Script
-	$ObjForm.Show() | Out-Null
-	$ObjForm.Focus() | Out-NUll
-	$ObjLabel.Text = "Installing App. Please wait ..."
-	$ObjForm.Refresh()
-	Start-Sleep -Milliseconds 300
-    
-    $ObjForm.Refresh()
-    $PB.Value = 1
-	$ObjLabel.Text = "Installing App. Getting Ready ..."
-	Start-Sleep -Milliseconds 300
+Write-Progress -Activity "Installing BWAPP" -Status "Getting Ready" -PercentComplete 1
  
 
-## GETTING FILES FROM GITHUB ##
+
 New-Item -ItemType Directory -Force -Path "C:\BWApp"
 $url = "https://github.com/valllem/BWApp/archive/master.zip"
 $Path = "C:\BWApp"
 $output = [IO.Path]::Combine($Path, "BWApp_$Version.zip”)
-###########    
-
-
-
-    $ObjForm.Refresh()
-    $PB.Value = 10
-	$ObjLabel.Text = "Checking Required Modules ..."
-	Start-Sleep -Seconds 2
- 
-################################## SECOND PROGRESS BAR ############################
-
-    ## PROGRESS BAR INSTALLING APP ##
-    $ObjForm2 = New-Object System.Windows.Forms.Form
-	$ObjForm2.Text = "Installing Modules"
-	$ObjForm2.Height = 100
-	$ObjForm2.Width = 500
-	$ObjForm2.BackColor = "White"
-
-	$ObjForm2.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedSingle
-	$ObjForm2.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
-    ##$ObjForm2.Location.X = 500
-    ##$ObjForm2.Location.Y = 500
-
-	## -- Create The Label
-	$ObjLabel2 = New-Object System.Windows.Forms.Label
-	$ObjLabel2.Text = "Installing Modules ..."
-	$ObjLabel2.Left = 5
-	$ObjLabel2.Top = 10
-	$ObjLabel2.Width = 500 - 20
-	$ObjLabel2.Height = 15
-	$ObjLabel2.Font = "Tahoma"
-	## -- Add the label to the Form
-	$ObjForm2.Controls.Add($ObjLabel2)
-
-	$PB2 = New-Object System.Windows.Forms.ProgressBar
-	$PB2.Name = "PowerShellProgressBar"
-	$PB2.Value = 0
-	$PB2.Style="Continuous"
-
-	$System_Drawing_Size2 = New-Object System.Drawing.Size
-	$System_Drawing_Size2.Width = 500 - 40
-	$System_Drawing_Size2.Height = 20
-	$PB2.Size = $System_Drawing_Size2
-	$PB2.Left = 5
-	$PB2.Top = 40
-	$ObjForm2.Controls.Add($PB2)
-
-	## -- Show the Progress-Bar and Start The PowerShell Script
-	$ObjForm2.Show() | Out-Null
-	$ObjForm2.Focus() | Out-NUll
-	$ObjLabel2.Text = "Installing Modules ..."
-	$ObjForm2.Refresh()
-	Start-Sleep -Milliseconds 300
     
-    $ObjForm2.Refresh()
-    $PB2.Value = 1
-	$ObjLabel2.Text = "Installing Modules ..."
-	Start-Sleep -Milliseconds 300
 
-####################################################################################
- 
+
+Write-Progress -Activity "Installing BWAPP" -Status "Checking Required Modules" -PercentComplete 5
+
                                                            
 
-## INSTALL REQUIRED MODULES ##
+
 Install-PackageProvider -Name NuGet -Force
 ##--Security Principal Check for If statement--##
 $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 
-
+Clear-Host
 If ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
     
-    $ObjForm2.Refresh()
-    $PB2.Value = 10
-	$ObjLabel2.Text = "Installing Modules ..."
-	Start-Sleep -Milliseconds 300
-
 if (Get-Module -ListAvailable -Name AADRM) {
     
     
 } 
 else {
-    
+    Clear-Host
     Install-Module -Name AADRM -force
 }
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 20
-	$ObjLabel2.Text = "Installing Modules ..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 8
 if (Get-Module -ListAvailable -Name AzureAD) {
     
 
 } 
 else {
-    
+    Clear-Host
     Install-Module -Name AzureAD -force
 }
-    $ObjForm2.Refresh()
-    $PB2.Value = 30
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 10  
 if (Get-Module -ListAvailable -Name MicrosoftTeams) {
     
 } 
 else {
-    
+    Clear-Host
     Install-Module -Name MicrosoftTeams -Force
 }
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 60
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 15
 if (Get-Module -ListAvailable -Name Microsoft.Online.SharePoint.PowerShell) {
     
 } 
 else {
-   
+    Clear-Host
     Install-Module -Name Microsoft.Online.SharePoint.PowerShell -force
 }
-    
-    $ObjForm.Refresh()
-    $PB.Value = 20
-	$ObjLabel.Text = "Importing Required Scripts..."
-	Start-Sleep -Milliseconds 300
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 70
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
-  
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 20    
 if (Get-Module -ListAvailable -Name MSOnline) {
     
 } 
 else {
-    
+    Clear-Host
     Install-Module -Name MSOnline -force
 }
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 80
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 25
 if (Get-Module -ListAvailable -Name AzureRM) {
     
 } 
 else {
-    
+    Clear-Host
     Install-Module -name AzureRM -Force
 }    
-
-    $ObjForm.Refresh()
-    $PB.Value = 30
-	$ObjLabel.Text = "Importing Required Scripts..."
-	Start-Sleep -Milliseconds 300
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 90
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 30
 if (Get-Module -ListAvailable -Name CreateExoPsSession) {
     
 } 
 else {
-    
+    Clear-Host
     Install-Script -Name CreateExoPsSession -force 
 }
+Write-Progress -Activity "Installing BWAPP" -Status "Installing Required Modules - This can take several minutes" -PercentComplete 35
 
-    $ObjForm2.Refresh()
-    $PB2.Value = 100
-	$ObjLabel2.Text = "Installing Modules, this may take several minutes..."
-	Start-Sleep -Milliseconds 300
     
     Install-Module -Name Microsoft.Exchange.Management.ExoPowershellModule -Force -AllowClobber
     Install-Script -Name Load-ExchangeMFA -Force 
@@ -317,23 +160,12 @@ else {
     Clear-Host
 
 }
-
-    $ObjForm2.Refresh()
-    $PB2.Value = 100
-	$ObjLabel2.Text = "All Modules Installed"
-	Start-Sleep -Seconds 2
-    
-    $ObjForm2.Close()
-
-
-
-
-    $ObjForm.Refresh()
-    $PB.Value = 40
-	$ObjLabel.Text = "Importing Required Scripts..."
-	Start-Sleep -Milliseconds 300
-
-## INSTALL CLICKONCE ##
+Write-Progress -Activity "Installing BWAPP" -Status "Installed Required Modules" -PercentComplete 40
+else {
+    write-host -foregroundcolor $errormessagecolor "*** ERROR *** - Please re-run PowerShell environment as Administrator`n"
+}
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Importing needed scripts" -PercentComplete 41
 function Install-ClickOnce {
 [CmdletBinding()] 
 Param(
@@ -396,14 +228,10 @@ Param(
         Get-EventSubscriber|? {$_.SourceObject.ToString() -eq 'System.Deployment.Application.InPlaceHostingManager'} | Unregister-Event
     }
 }
-
-    $ObjForm.Refresh()
-    $PB.Value = 60
-	$ObjLabel.Text = "Importing Required Scripts..."
-	Start-Sleep -Milliseconds 300
-
-
-## CLICKONECE INSTALL CHECK ##
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Importing needed scripts" -PercentComplete 60
+<# Simple Install Check
+#>
 function Get-ClickOnce {
 [CmdletBinding()]  
 Param(
@@ -412,12 +240,8 @@ Param(
     $InstalledApplicationNotMSI = Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall | foreach-object {Get-ItemProperty $_.PsPath}
     return $InstalledApplicationNotMSI | ? { $_.displayname -match $ApplicationName } | Select-Object -First 1
 }
-
-    $ObjForm.Refresh()
-    $PB.Value = 65
-	$ObjLabel.Text = "Testing Scripts..."
-	Start-Sleep -Milliseconds 300
-
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Testing Scripts" -PercentComplete 65
 Function Test-ClickOnce {
 [CmdletBinding()] 
 Param(
@@ -425,14 +249,10 @@ Param(
 )
     return ( (Get-ClickOnce -ApplicationName $ApplicationName) -ne $null) 
 }
-
-    $ObjForm.Refresh()
-    $PB.Value = 70
-	$ObjLabel.Text = "Creating ClickOnce Uninstall"
-	Start-Sleep -Milliseconds 300
-
-
-## CREATE UNINSTALL CLICKONCE ##
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Creating UnInstall" -PercentComplete 70
+<# Simple UnInstall
+#>
 function Uninstall-ClickOnce {
 [CmdletBinding()] 
 Param(
@@ -464,14 +284,8 @@ Param(
         #return $null
     }
 }
-
-
-    $ObjForm.Refresh()
-    $PB.Value = 75
-	$ObjLabel.Text = "Loading Exchange MFA Module"
-	Start-Sleep -Milliseconds 300
-
-## LOAD EXCHANGE MFA MODULE ##
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Loading Exchange MFA Module" -PercentComplete 75
 Function Load-ExchangeMFAModule { 
 [CmdletBinding()] 
 Param ()
@@ -514,14 +328,8 @@ Param ()
         }
     }
 }
-
-
-    $ObjForm.Refresh()
-    $PB.Value = 80
-	$ObjLabel.Text = "Preparing ClickOnce Script ..."
-	Start-Sleep -Milliseconds 300
-
-
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Preparing ClickOnce Script" -PercentComplete 80
 if ((Test-ClickOnce -ApplicationName "Microsoft Exchange Online Powershell Module" ) -eq $false)  {
    Install-ClickOnce -Manifest "https://cmdletpswmodule.blob.core.windows.net/exopsmodule/Microsoft.Online.CSE.PSModule.Client.application"
 }
@@ -529,61 +337,39 @@ if ((Test-ClickOnce -ApplicationName "Microsoft Exchange Online Powershell Modul
 $script = Load-ExchangeMFAModule -Verbose
 #Dot Source the associated script
 . $Script
-
-
-    $ObjForm.Refresh()
-    $PB.Value = 90
-	$ObjLabel.Text = "Downloading Components ..."
-	Start-Sleep -Milliseconds 300
+Clear-Host
+Write-Progress -Activity "Installing BWAPP" -Status "Downloading Components" -PercentComplete 90
     
 #Download file
 (New-Object System.Net.WebClient).DownloadFile($url, $output)
 Start-Sleep -Seconds 2    
 # Unzip the Archive
-
-    $ObjForm.Refresh()
-    $PB.Value = 95
-	$ObjLabel.Text = "Extracting Components ..."
-	Start-Sleep -Milliseconds 300
-
+Write-Progress -Activity "Installing BWAPP" -Status "Extracting Components" -PercentComplete 95
 Expand-Archive $output -DestinationPath $Path -Force
     
 #Set the environment variable
 ##$Home = [IO.Path]::Combine($Path, "BWApp")
-   
+Clear-Host    
 ##[Environment]::SetEnvironmentVariable("HOME", "$Home", "User")
-
-    $ObjForm.Refresh()
-    $PB.Value = 99
-	$ObjLabel.Text = "Creating Shortcuts..."
-	Start-Sleep -Milliseconds 300
-
-
+Write-Progress -Activity "Installing BWAPP" -Status "Creating Shortcuts" -PercentComplete 99
+Start-Sleep -Seconds 4
 write-host -foregroundcolor Yellow "Creating Shortcuts"
 cd $HOME
 cd desktop
 $ShortCutDir = Get-Location
-
+write-host $ShortCutDir
 Start-Sleep -Seconds 2
-function set-shortcut {
-param ( [string]$SourceLnk, [string]$DestinationPath )
-    $WshShell = New-Object -comObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($SourceLnk)
-    $Shortcut.TargetPath = $DestinationPath
-    $Shortcut.Save()
-    }
-set-shortcut "$ShortcutDir\BWApp.lnk" "$Path\BWApp-master\Launcher.ps1"
 
 
-    $ObjForm.Refresh()
-    $PB.Value = 100
-	$ObjLabel.Text = "Installation Complete"
-	Start-Sleep -Seconds 3
-    
+$WshShell = New-Object -comObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut("$ShortCutDir\BWApp.lnk")
+$Shortcut.TargetPath = """C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"""
+$argA = """C:\BWApp\BWApp-master\Launcher.ps1"""
+##$argB = """/S:Search Card"""
+$Shortcut.Arguments = $argA
+$Shortcut.Save()
 
-    [Console.Window]::ShowWindow($consolePtr, 1)
-
-
+Write-Progress -Activity "Installing BWAPP" -Status "Ready" -Completed
 Clear-Host
 
     
